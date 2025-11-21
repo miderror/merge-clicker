@@ -90,7 +90,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _pickaxeRect: {fileID: 2754322297223608153}
   _pickaxeImage: {fileID: 2754322297223608158}
-  _fallSpeed: 300
+  _fallSpeed: 500
   _bounceHeight: 100
   _bounceDuration: 0.5
   _rotationSpeed: 360

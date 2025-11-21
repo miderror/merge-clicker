@@ -14,12 +14,12 @@ public class BlockSpawner : MonoBehaviour, ISaveSystem
     public Action onDiggedAll = null;
 
 
-    void Start()
+    private void Awake()
     {
         SaveManager.Instance.RegisterSaveSystem(this);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (SaveManager.Instance != null)
         {
@@ -36,7 +36,7 @@ public class BlockSpawner : MonoBehaviour, ISaveSystem
         for (int i = 0; i < _lvlBlocks.Length; ++i)
         {
             var random = new System.Random(SeedLvlGeneration + _blocksCount * GameManager.CurrentLevel + i);
-            int blockIndex = Mathf.Clamp(random.Next(GameManager.CurrentLevel - 2, GameManager.CurrentLevel + 1), 0, _blocks.Length - 1);
+            int blockIndex = Mathf.Clamp(random.Next(GameManager.CurrentLevel / 3 - 2, GameManager.CurrentLevel / 3 + 1), 0, _blocks.Length - 1);
 
             _lvlBlocks[i] = Instantiate(_blocks[blockIndex], transform);
             _lvlBlocks[i].onDigged += CheckBlocks;

@@ -8,7 +8,13 @@ public class Inventory : MonoBehaviour, ISaveSystem
 
     private List<Pickaxe> _pickaxes = new List<Pickaxe>();
 
-    void Start()
+
+    private void Awake()
+    {
+        SaveManager.Instance.RegisterSaveSystem(this);
+    }
+
+    private void Start()
     {
         if (_cells == null || _cells.Length == 0)
         {
@@ -19,12 +25,10 @@ public class Inventory : MonoBehaviour, ISaveSystem
             cell.onDestroyPickaxe += UpdatePickaxes;
         }
 
-        SaveManager.Instance.RegisterSaveSystem(this);
-
         UIManager.UpdateBuyButtonText(GetNextCostOfPickaxe());
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (SaveManager.Instance != null)
         {
@@ -90,7 +94,7 @@ public class Inventory : MonoBehaviour, ISaveSystem
             Pickaxe pickaxe = cell.GetPickaxe();
             if (pickaxe != null)
             {
-                count += pickaxe.GetLvl() + 1;
+                count += (int)Mathf.Pow(2, pickaxe.GetLvl());
             }
         }
         return count;
@@ -104,8 +108,11 @@ public class Inventory : MonoBehaviour, ISaveSystem
 
             if (pickaxe != null)
             {
-                print(i);
                 PlayerPrefs.SetInt($"cell{i}", pickaxe.GetLvl());
+            }
+            else
+            {
+                PlayerPrefs.SetInt($"cell{i}", -1);
             }
         }
         PlayerPrefs.Save();
@@ -117,9 +124,8 @@ public class Inventory : MonoBehaviour, ISaveSystem
 
         for (int i = 0; i < _cells.Length; i++)
         {
-            if (PlayerPrefs.HasKey($"cell{i}"))
+            if (PlayerPrefs.GetInt($"cell{i}", -1) >= 0)
             {
-                print(i);
                 Pickaxe newPickaxe = Instantiate(_pickaxePrefab, _cells[i].transform);
                 newPickaxe.SetPickaxe(PlayerPrefs.GetInt($"cell{i}"));
 
@@ -146,9 +152,12 @@ public class Inventory : MonoBehaviour, ISaveSystem
     public void DropAll()
     {
         List<Cell> cells = GetOccupiedCells();
-        if (cells.Count != _pickaxes.Count)
+        foreach (Cell cell in cells)
         {
-            return;
+            if (cell.GetPickaxe().IsFalling())
+            {
+                return;
+            }
         }
         foreach (Cell cell in cells)
         {
@@ -158,14 +167,18 @@ public class Inventory : MonoBehaviour, ISaveSystem
 
     public int GetNextCostOfPickaxe()
     {
-        return GetPickaxeCount() * 10;
+        return GetPickaxeCount();
     }
 
     public void BuyPickaxe()
     {
-        if (GetOccupiedCells().Count != _pickaxes.Count)
+        List<Cell> cells = GetOccupiedCells();
+        foreach (Cell cell in cells)
         {
-            return;
+            if (cell.GetPickaxe().IsFalling())
+            {
+                return;
+            }
         }
         int cost = GetNextCostOfPickaxe();
         if (GameManager.SpendMoney(cost))

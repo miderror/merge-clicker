@@ -37,6 +37,10 @@ public class Block : MonoBehaviour
 
     public void Dig(int damage)
     {
+        if (_curHealth <= 0)
+        {
+            return;
+        }
         _curHealth = Math.Max(0, _curHealth - damage);
         GameManager.AddMoney(damage);
         UpdateDestroyState();

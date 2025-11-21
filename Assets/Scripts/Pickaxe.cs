@@ -259,6 +259,7 @@ public class Pickaxe : MonoBehaviour
 
     public void SetPickaxe(int lvl)
     {
+        _lvl = lvl;
         _pickaxeImage.sprite = _pickaxeLevels[lvl].sprite;
         _maxDurability = _pickaxeLevels[lvl].maxDurability;
         _damage = _pickaxeLevels[lvl].damage;

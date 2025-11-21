@@ -43,7 +43,6 @@ public class GameManager : MonoBehaviour, ISaveSystem
     private void InitializeGame()
     {
         SaveManager.Instance.RegisterSaveSystem(this);
-        SaveManager.Instance.LoadAllData();
 
         GenerateLevel(CurrentLevel);
     }

@@ -27,7 +27,7 @@ public class SaveManager : MonoBehaviour
         }
     }
 
-    void Awake()
+    private void Awake()
     {
         if (instance == null)
         {
@@ -38,6 +38,11 @@ public class SaveManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    private void Start()
+    {
+        LoadAllData();
     }
 
     public void RegisterSaveSystem(ISaveSystem saveSystem)
