@@ -5,12 +5,11 @@ using UnityEngine.UI;
 public class Block : MonoBehaviour
 {
     [Header("General Properties")]
-    [SerializeField] private Sprite _blockSprite = null;
     [SerializeField] private int _maxHealth = 5;
     [SerializeField] private int _reward = 5;
     [SerializeField] private Sprite[] _destroyStates = null;
     [Space]
-    [Header("Links")]
+    [Header("Components")]
     [SerializeField] private Image _blockImage = null;
     [SerializeField] private Image _destroyImage = null;
 
@@ -31,15 +30,16 @@ public class Block : MonoBehaviour
     }
 
 
-    private void Start()
+    private void Awake()
     {
-        _blockImage.sprite = _blockSprite;
         _curHealth = _maxHealth;
     }
 
     public void Dig(int damage)
     {
         _curHealth = Math.Max(0, _curHealth - damage);
+        GameManager.AddMoney(damage);
+        UpdateDestroyState();
 
         if (_curHealth <= 0)
         {
@@ -53,7 +53,7 @@ public class Block : MonoBehaviour
         int state = Mathf.FloorToInt(healthPercent * _destroyStates.Length);
         state = Mathf.Clamp(state, 0, _destroyStates.Length - 1);
 
-        if (state == 0)
+        if (state == 0 || _curHealth <= 0)
         {
             _destroyImage.sprite = null;
             _destroyImage.color = new Color(0, 0, 0, 0);
@@ -75,5 +75,7 @@ public class Block : MonoBehaviour
     public void Deactive()
     {
         _blockImage.color = new Color(0, 0, 0, 0);
+        _destroyImage.sprite = null;
+        _destroyImage.color = new Color(0, 0, 0, 0);
     }
 }

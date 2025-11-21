@@ -3,6 +3,14 @@ using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections;
 
+[System.Serializable]
+public struct PickaxeData
+{
+    public Sprite sprite;
+    public int maxDurability;
+    public int damage;
+}
+
 public class Pickaxe : MonoBehaviour
 {
     [Header("Components")]
@@ -16,9 +24,12 @@ public class Pickaxe : MonoBehaviour
     [SerializeField] private float _rotationSpeed = 360f;
 
     [Header("Pickaxe Properties")]
+    [SerializeField] private PickaxeData[] _pickaxeLevels = null;
+    [Space]
     [SerializeField] private int _maxDurability = 10;
     [SerializeField] private int _damage = 1;
 
+    private int _lvl = 0;
     private int _currentDurability = 0;
     private bool _isFalling = false;
     private bool _isBouncing = false;
@@ -38,7 +49,6 @@ public class Pickaxe : MonoBehaviour
         _currentDurability = _maxDurability;
     }
 
-    [ContextMenu("Attack")]
     public void StartAttack()
     {
         if (_isFalling || _currentDurability <= 0)
@@ -46,6 +56,7 @@ public class Pickaxe : MonoBehaviour
             return;
         }
 
+        _originalParent = _pickaxeRect.parent;
         _pickaxeRect.SetParent(_originalParent.parent.parent, true);
         _isFalling = true;
 
@@ -246,15 +257,27 @@ public class Pickaxe : MonoBehaviour
         OnDurabilityChanged?.Invoke(_currentDurability);
     }
 
-    public void UpgradePickaxe(int extraDurability, int extraDamage)
+    public void SetPickaxe(int lvl)
     {
-        _maxDurability += extraDurability;
-        _damage += extraDamage;
+        _pickaxeImage.sprite = _pickaxeLevels[lvl].sprite;
+        _maxDurability = _pickaxeLevels[lvl].maxDurability;
+        _damage = _pickaxeLevels[lvl].damage;
         ResetPickaxe();
+    }
+
+    public bool UpgradePickaxe()
+    {
+        if (_lvl + 1 >= _pickaxeLevels.Length)
+        {
+            return false;
+        }
+        SetPickaxe(++_lvl);
+        return true;
     }
 
     public bool IsFalling() => _isFalling;
     public bool IsBouncing() => _isBouncing;
     public int GetCurrentDurability() => _currentDurability;
     public int GetMaxDurability() => _maxDurability;
+    public int GetLvl() => _lvl;
 }
