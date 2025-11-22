@@ -35,7 +35,7 @@ public class BlockSpawner : MonoBehaviour, ISaveSystem
 
         for (int i = 0; i < _lvlBlocks.Length; ++i)
         {
-            var random = new System.Random(SeedLvlGeneration + _blocksCount * GameManager.CurrentLevel + i);
+            System.Random random = new System.Random(SeedLvlGeneration + _blocksCount * GameManager.CurrentLevel + i);
             int blockIndex = Mathf.Clamp(random.Next(GameManager.CurrentLevel / 3 - 2, GameManager.CurrentLevel / 3 + 1), 0, _blocks.Length - 1);
 
             _lvlBlocks[i] = Instantiate(_blocks[blockIndex], transform);
