@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.UI;
 
 public class Cell : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler
@@ -16,6 +18,11 @@ public class Cell : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPoin
     void Start()
     {
         _canvas = GetComponentInParent<Canvas>();
+
+        if (!EnhancedTouchSupport.enabled)
+        {
+            EnhancedTouchSupport.Enable();
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -72,17 +79,39 @@ public class Cell : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPoin
         }
     }
 
+    private Vector2 GetPointerPosition()
+    {
+        if (Touchscreen.current != null && UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count > 0)
+        {
+            return UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches[0].screenPosition;
+        }
+        else if (Mouse.current != null)
+        {
+            return Mouse.current.position.ReadValue();
+        }
+
+        return Vector2.zero;
+    }
+
     private void UpdateDraggedPosition()
     {
-        if (_draggedPickaxe == null) return;
+        if (_draggedPickaxe == null)
+        {
+            return;
+        }
 
         RectTransform pickaxeRect = _draggedPickaxe.GetComponent<RectTransform>();
-        if (pickaxeRect == null) return;
+        if (pickaxeRect == null)
+        {
+            return;
+        }
+
+        Vector2 pointerPosition = GetPointerPosition();
 
         Vector2 localPoint;
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
             _canvas.GetComponent<RectTransform>(),
-            Input.mousePosition,
+            pointerPosition,
             _canvas.worldCamera,
             out localPoint))
         {
@@ -174,9 +203,11 @@ public class Cell : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPoin
     private Cell GetCellUnderCursor()
     {
         var results = new System.Collections.Generic.List<RaycastResult>();
+        Vector2 pointerPosition = GetPointerPosition();
+
         EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current)
         {
-            position = Input.mousePosition
+            position = pointerPosition
         }, results);
 
         foreach (var result in results)
@@ -237,7 +268,7 @@ public class Cell : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPoin
         }
     }
 
-    public void OnPointerEnter(PointerEventData eventData) {}
+    public void OnPointerEnter(PointerEventData eventData) { }
 
     public void UpdatePickaxeState()
     {
